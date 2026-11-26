@@ -1,0 +1,26 @@
+﻿name: "3. Request a Senior Code Review / Architecture Check"
+description: "Ask experienced peers or alumni to review your project structure, code quality, or AI-generated modules."
+title: "[Code Review]: "
+labels: ["needs-review"]
+body:
+  - type: input
+    id: repo_link
+    attributes:
+      label: "Repository or Pull Request URL"
+      placeholder: "e.g., https://github.com/Gappyjosuke/Kurippugal/pull/2"
+    validations:
+      required: true
+  - type: textarea
+    id: review_focus
+    attributes:
+      label: "What Should Reviewers Focus On?"
+      placeholder: "e.g., Please review folder structure, error handling in the API routes, and whether the AI-generated helper functions have any edge-case bugs."
+    validations:
+      required: true
+  - type: input
+    id: owner_info
+    attributes:
+      label: "Your Name and Department"
+      placeholder: "e.g., U. Sastha Ruban (@Gappyjosuke), CSE"
+    validations:
+      required: true

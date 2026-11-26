@@ -1,0 +1,24 @@
+﻿name: "2. Ask for Help (Code, Bug Fix, or Documentation)"
+description: "Broadcast a specific issue or blocker from your repository so peers and seniors can contribute a Pull Request."
+title: "[Help Wanted]: "
+labels: ["help-wanted"]
+body:
+  - type: input
+    id: repo_link
+    attributes:
+      label: "Repository URL"
+      placeholder: "e.g., https://github.com/Gappyjosuke/Kurippugal"
+    validations:
+      required: true
+  - type: input
+    id: issue_link
+    attributes:
+      label: "Direct Issue Link in Your Repo (Optional)"
+      placeholder: "e.g., https://github.com/Gappyjosuke/Kurippugal/issues/1"
+  - type: textarea
+    id: problem_desc
+    attributes:
+      label: "What Do You Need Help With?"
+      placeholder: "e.g., Need help fixing responsive layout overflow on mobile screens and adding a quick-start section in Tanglish."
+    validations:
+      required: true

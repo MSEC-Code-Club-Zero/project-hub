@@ -1,0 +1,57 @@
+﻿name: "1. Submit a Project or Tutorial Repo"
+description: "List your computing project, documentation repo, or tutorial guide (English / Tamil / Tanglish) in the community hub."
+title: "[Project]: "
+labels: ["new-project"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### List Your Repository in MSEC Code Club Zero
+        Open to **all departments and batches** (juniors and seniors). Make sure your repository is **Public** before submitting. Using AI tools for code generation is welcome as long as your code is tested.
+  - type: input
+    id: project_title
+    attributes:
+      label: "Project / Guide Title"
+      placeholder: "e.g., Kurippugal: Lightweight Student Notes and Collaborative Sandbox"
+    validations:
+      required: true
+  - type: input
+    id: repo_url
+    attributes:
+      label: "GitHub Repository URL"
+      placeholder: "e.g., https://github.com/Gappyjosuke/Kurippugal"
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: "Category"
+      options:
+        - "Software / App / Web Project"
+        - "AI / ML / Data Science"
+        - "Networking / Linux / Systems / IoT"
+        - "Documentation / Tutorial Guide (English / Tamil / Tanglish)"
+        - "Computing Concept / Algorithm Implementation"
+    validations:
+      required: true
+  - type: input
+    id: tech_stack
+    attributes:
+      label: "Tech Stack / Language"
+      placeholder: "e.g., HTML, CSS, JavaScript, Python (Docs in English / Tanglish)"
+    validations:
+      required: true
+  - type: textarea
+    id: help_needed
+    attributes:
+      label: "What Help or Contributions Are You Looking For?"
+      placeholder: "e.g., Looking for contributors to improve mobile UI, add dark mode, fix edge-case bugs, or write Tamil/Tanglish setup docs."
+    validations:
+      required: true
+  - type: input
+    id: owner_info
+    attributes:
+      label: "Owner Name, Handle and Department / Batch"
+      placeholder: "e.g., U. Sastha Ruban (@Gappyjosuke), CSE (2026 Batch)"
+    validations:
+      required: true
