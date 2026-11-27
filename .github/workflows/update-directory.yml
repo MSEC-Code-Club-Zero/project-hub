@@ -1,57 +1,115 @@
-﻿name: Auto-Update Project Directory
+name: Sync Project Directory Table
+
 on:
   issues:
-    types: [labeled]
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
-  issues: write
+  issues: read
 
 jobs:
-  update-readme:
-    if: github.event.label.name == 'approved'
+  sync-readme:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Parse Issue and Append to README
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Rebuild README table from unique project issues
         uses: actions/github-script@v7
         with:
           script: |
-            const body = context.payload.issue.body || '';
-            const getField = (label) => {
-              const regex = new RegExp(`### ${label}\\s+([\\s\\S]*?)(?=\\n### |$)`);
-              const m = body.match(regex);
-              return m ? m[1].trim().replace(/\r?\n/g, ' ').replace(/\|/g, '/') : 'N/A';
-            };
-            const title = getField('Project / Guide Title');
-            const url = getField('GitHub Repository URL');
-            const stack = getField('Tech Stack / Language');
-            const help = getField('What Help or Contributions Are You Looking For\\?');
-            const owner = getField('Owner Name, Handle and Department / Batch');
-            const row = `| ${title} | [Repo Link](${url}) | ${stack} | ${help} | ${owner} | Active |`;
-
             const fs = require('fs');
-            let readme = fs.readFileSync('README.md', 'utf8');
-            if (!readme.includes(url)) {
-              readme = readme.replace('<!-- PROJECT_TABLE_END -->', `${row}\n<!-- PROJECT_TABLE_END -->`);
-              fs.writeFileSync('README.md', readme);
+
+            // Fetch all open issues in this repo
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            function extractField(body, heading) {
+              if (!body) return '';
+              const regex = new RegExp(`###\\s+${heading}\\s*\\n+([\\s\\S]*?)(?=\\n###\\s+|$)`, 'i');
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
             }
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `Approved and added **${title}** to the live README directory.`
-            });
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              state: 'closed'
-            });
-      - name: Commit updated README
+
+            function cleanCell(text, maxLen = 140) {
+              if (!text || text === '_No response_') return '—';
+              let single = text.replace(/\r?\n+/g, ' ').replace(/\|/g, '\\|').trim();
+              if (single.length > maxLen) {
+                single = single.slice(0, maxLen - 3).trim() + '...';
+              }
+              return single;
+            }
+
+            const seenRepos = new Set();
+            const rows = [];
+
+            // Sort oldest first so initial submissions stay in order
+            issues.sort((a, b) => a.number - b.number);
+
+            for (const issue of issues) {
+              if (issue.pull_request) continue;
+
+              const repoUrlRaw = extractField(issue.body, 'GitHub Repository URL');
+              const urlMatch = repoUrlRaw.match(/https?:\/\/github\.com\/[^\s)>\]]+/i);
+              if (!urlMatch) continue;
+
+              const normalizedUrl = urlMatch[0].replace(/\/+$/, '');
+              const dedupeKey = normalizedUrl.toLowerCase();
+              if (seenRepos.has(dedupeKey)) continue;
+              seenRepos.add(dedupeKey);
+
+              const title = cleanCell(extractField(issue.body, 'Project Title') || issue.title, 60);
+              const stack = cleanCell(extractField(issue.body, 'Tech Stack'), 60);
+              const help = cleanCell(extractField(issue.body, 'What Help Do You Need\\?'), 140);
+              const ownerBatch = cleanCell(
+                extractField(issue.body, 'Owner Name & Batch / Year') || `@${issue.user.login}`,
+                60
+              );
+
+              rows.push(`| ${title} | [Repo Link](${normalizedUrl}) | ${stack} | ${help} | ${ownerBatch} |`);
+            }
+
+            const readmePath = 'README.md';
+            let readme = fs.readFileSync(readmePath, 'utf8');
+
+            const startMarker = '<!-- PROJECT_TABLE_START -->';
+            const endMarker = '<!-- PROJECT_TABLE_END -->';
+
+            const startIndex = readme.indexOf(startMarker);
+            const endIndex = readme.indexOf(endMarker);
+
+            if (startIndex === -1 || endIndex === -1) {
+              core.setFailed('Table markers not found in README.md');
+              return;
+            }
+
+            const tableBody = rows.length > 0
+              ? `\n${rows.join('\n')}\n`
+              : `\n| _No projects submitted yet_ | — | — | [Submit the first project](../../issues/new?template=1-submit-project.yml) | — |\n`;
+
+            const updatedReadme =
+              readme.slice(0, startIndex + startMarker.length) +
+              tableBody +
+              readme.slice(endIndex);
+
+            if (updatedReadme !== readme) {
+              fs.writeFileSync(readmePath, updatedReadme, 'utf8');
+            }
+
+      - name: Commit updated README.md
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md
-          git diff --staged --quiet || git commit -m "chore: add approved student project to directory"
-          git push
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync live community project directory"
+            git push
+          fi
