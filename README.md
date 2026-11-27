@@ -37,7 +37,5 @@ If your project is listed here, paste this badge into your repository `README.md
 ### Live Community Project Directory
 
 <!-- PROJECT_TABLE_START -->
-| Project Title | Repository | Tech Stack | Help Needed | Owner and Batch | Status |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| Compiler-Design-University-Labs | [Repo Link](https://github.com/Gappyjosuke/Compiler-Design-University-Lab) | C, YAAC, LEX | I created this repository for educational purposes. What I've always wanted is to turn it into a gamified, web based, interactive learnin... | Sastha Ruban - 2026 - passed out | Open |
+| Compiler-Design-University-Labs | [Repo Link](https://github.com/Gappyjosuke/Compiler-Design-University-Lab) | C , YAAC, LEX | I created this repository for educational purposes. What I've always wanted is to turn it into a gamified, web based, interactive learnin... | Sastha Ruban - 2026 - passed out |
 <!-- PROJECT_TABLE_END -->
