@@ -24,7 +24,6 @@ jobs:
           script: |
             const fs = require('fs');
 
-            // Fetch all open issues in this repo
             const issues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -51,7 +50,6 @@ jobs:
             const seenRepos = new Set();
             const rows = [];
 
-            // Sort oldest first so initial submissions stay in order
             issues.sort((a, b) => a.number - b.number);
 
             for (const issue of issues) {
@@ -74,7 +72,7 @@ jobs:
                 60
               );
 
-              rows.push(`| ${title} | [Repo Link](${normalizedUrl}) | ${stack} | ${help} | ${ownerBatch} |`);
+              rows.push(`| ${title} | [Repo Link](${normalizedUrl}) | ${stack} | ${help} | ${ownerBatch} | Open |`);
             }
 
             const readmePath = 'README.md';
@@ -91,13 +89,16 @@ jobs:
               return;
             }
 
-            const tableBody = rows.length > 0
-              ? `\n${rows.join('\n')}\n`
-              : `\n| _No projects submitted yet_ | — | — | [Submit the first project](../../issues/new?template=1-submit-project.yml) | — |\n`;
+            const tableHeader = `| Project Title | Repository | Tech Stack | Help Needed | Owner and Batch | Status |\n| :--- | :--- | :--- | :--- | :--- | :--- |`;
+            const dataRows = rows.length > 0
+              ? rows.join('\n')
+              : `| _No projects submitted yet_ | — | — | [Submit the first project](../../issues/new?template=1-submit-project.yml) | — | — |`;
+
+            const tableBlock = `\n${tableHeader}\n${dataRows}\n`;
 
             const updatedReadme =
               readme.slice(0, startIndex + startMarker.length) +
-              tableBody +
+              tableBlock +
               readme.slice(endIndex);
 
             if (updatedReadme !== readme) {
