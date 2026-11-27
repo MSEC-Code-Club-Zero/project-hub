@@ -38,4 +38,5 @@ If your project is listed here, paste this badge into your repository `README.md
 
 | Project Title | Repository | Tech Stack | Help Needed | Owner and Batch | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| Kurippugal| [Repo Link](https://github.com/Gappyjosuke/Kurippugal) | Svelte, TypeScripts,CSS, JavaScript (Docs in English / Tanglish) | Looking for contributors to practice issue reporting, improve mobile UI responsiveness, and add Tanglish beginner documentation. | U. Sastha Ruban (@Gappyjosuke), CSE (2026 Batch) | Active |
+<!-- PROJECT_TABLE_START -->
+<!-- PROJECT_TABLE_END -->
